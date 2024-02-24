@@ -9,19 +9,32 @@ use Illuminate\Support\Facades\Session;
 class UserController extends Controller
 {
     
+    /**
+     * Registration form view
+     */
     public function create()
     {
-        // Retrieve user ID from session
-        $userId = session('user_id');
-
-        // Check if user ID is set in session
-        if ($userId !== null) {
-            return redirect()->route('users.home');
-        }else{
-            return view('users.create');
+        try {
+            // Retrieve user ID from session
+            $userId = session('user_id');
+    
+            // Check if user ID is set in session
+            if ($userId !== null) {
+                // If user is already authenticated, redirect to the home page
+                return redirect()->route('users.home');
+            } else {
+                // If user is not authenticated, show the create user form
+                return view('users.create');
+            }
+        } catch (\Exception $e) {
+            // If any unexpected exception occurs, redirect with a generic error message
+            return redirect()->route('auth.login')->with('error', 'An error occurred while accessing the create user page. Please try again later.');
         }
     }
- 
+
+    /**
+     * Store data of new registered user
+     */
 
     public function store(Request $request)
     { 
@@ -37,7 +50,7 @@ class UserController extends Controller
             ], [
                 'agree_terms.required' => 'Please agree to the terms.',
             ]);
-
+    
             // Create user if validation passes
             $user = new User();
             $user->name = $request->name;
@@ -46,44 +59,59 @@ class UserController extends Controller
             $user->current_balance = $request->amount ?? 0;
             $user->is_active = $request->is_active ?? true;
             $user->save();
-
+    
             $userId = $user->id;
-            $userData = User::where('id', $userId)->first();
-
+            $userData = User::findOrFail($userId);
+    
+            // Set user id in session when new user is registered
+            Session::put('user_id', $userId);
+    
+            // Prepare data to pass to the view
             $data = [
                 'userId' => $userId,
                 'userData' => $userData,
             ];
-
-            Session::put('user_id', $userId);
+    
+            // Return view with new user data.
             return view('users.home', $data);
-
-        } catch (ValidationException $e) {
-            return redirect()->route('users.create')->withErrors($e->errors())->withInput();
+    
+        } catch (\Exception $e) {
+            // If any unexpected exception occurs, redirect to the registration page with a generic error message
+            return redirect()->route('users.create')->with('error', 'An error occurred while registering the user. Please try again later.');
         }
     } 
+    
+    /**
+     * Home page after user registration
+     */
 
+    public function index()
+    {
+        try {
+            // Retrieve user ID from session
+            $userId = session('user_id');
     
-    public function index(){
-        // Retrieve user ID from session
-        $userId = session('user_id');
+            // Check if user ID is set in session
+            if ($userId === null) {
+                // If user ID is not set, redirect to the login page
+                return redirect()->route('auth.login')->with('error', 'Please log in to access this page.');
+            }
     
-        // Check if user ID is set in session
-        if ($userId === null) {
-            return view('auth.login');
+            // Retrieve user data based on user ID
+            $userData = User::findOrFail($userId); // Assuming user must exist
+    
+            // Prepare data to be passed to the view
+            $data = [
+                'userId' => $userId,
+                'userData' => $userData,
+            ];
+    
+            // Return the view with the prepared data
+            return view('users.home', $data);
+        } catch (\Exception $e) {
+            // If any unexpected exception occurs, redirect with a generic error message
+            return redirect()->route('auth.login')->with('error', 'An error occurred while accessing the home page. Please try again later.');
         }
-    
-        // Retrieve user data based on user ID
-        $userData = User::findOrFail($userId); // Assuming user must exist
-    
-        // Prepare data to be passed to the view
-        $data = [
-            'userId' => $userId,
-            'userData' => $userData,
-        ];
-    
-        // Return the view with the prepared data
-        return view('users.home', $data);
     }
-    
+        
 }

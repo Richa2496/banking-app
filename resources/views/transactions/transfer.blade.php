@@ -1,10 +1,17 @@
 @extends('layout')
 @extends('header')
 @include('navigation')
+<style>
+    .content-center {
+        display: flex;
+        justify-content: center;
+    }
+</style>
+
 <div class="page-body">
-    <div class="container container-tight py-6">
-        <div class="row row-cards">
-            <div class="col-md-12 ">
+    <div class="container">
+        <div class="row row-cards content-center">
+            <div class="col-md-12 " style="width: 600px;">
                 <div class="card card-md">
                     <div class="card">
                         <form action="{{route('transactions.transfer')}}" method="POST" autocomplete="off" novalidate>

@@ -64,12 +64,12 @@
                     @csrf
                     <div class="mb-3">
                         <label class="form-label">Email address</label>
-                        <input type="email" class="form-control" name="email" placeholder="your@email.com" autocomplete="off" required>
+                        <input type="email" class="form-control" name="email" placeholder="your@email.com" value="{{old('email')}}" autocomplete="off" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password</label>
                         <div class="input-group input-group-flat">
-                            <input type="password" class="form-control"  name="password" placeholder="Your password"  autocomplete="off" required>
+                            <input type="password" class="form-control"  name="password" value="{{old('password') }}" placeholder="Your password"  autocomplete="off" required>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -78,6 +78,15 @@
                         <span class="form-check-label">Remember me</span>
                     </label>
                     </div>
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <div class="form-footer">
                         <button type="submit" class="btn btn-primary w-100">Sign in</button>
                     </div>

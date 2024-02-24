@@ -26,7 +26,7 @@ class AuthController extends Controller
 
         if ($userData && Hash::check($credentials['password'], $userData->password)) {
             // Authentication successful
-            Session::put('user_id', $userData->id);
+            Session::put('user_id', $userData->id); // set session
             return redirect()->intended('/home'); // Redirect to dashboard or any desired page
         }
 
@@ -34,6 +34,7 @@ class AuthController extends Controller
         return back()->withErrors(['email' => 'Invalid credentials'])->withInput($request->only('email'));
     }
 
+    // Logout
     public function logout(Request $request)
     {   
         Session::flush();

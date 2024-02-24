@@ -5,10 +5,10 @@
         align-items: center;
     }
 </style>
-<div class="page-body">
+<div class="page-body" style="background-color:#fff; ">
     <div class="container-xl content-center">
         <div class="box">
-            <div class="mb-3">
+            <div >
                 <header class="navbar navbar-expand-md d-print-none" >
                     <div class="container-xl">
                         <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
@@ -16,7 +16,7 @@
                         </h1>
                     </div>
                 </header>
-                <header class="navbar-expand-md">
+                <header class="navbar-expand-md" style="border-bottom: 1px solid #c1bdbd;border-top: 1px solid #c1bdbd;">
                     <div class="collapse navbar-collapse" id="navbar-menu">
                         <div class="navbar">
                             <div class="container-xl content-center">
