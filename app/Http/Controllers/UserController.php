@@ -36,51 +36,48 @@ class UserController extends Controller
      * Store data of new registered user
      */
 
-    public function store(Request $request)
-    { 
-        try {
-            // Validate request data
-            $request->validate([
-                'name' => 'required|string',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|min:6',
-                'amount' => 'numeric',
-                'is_active' => 'boolean',
-                'agree_terms' => 'required',
-            ], [
-                'agree_terms.required' => 'Please agree to the terms.',
-            ]);
-    
-            // Create user if validation passes
-            $user = new User();
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = bcrypt($request->password);
-            $user->current_balance = $request->amount ?? 0;
-            $user->is_active = $request->is_active ?? true;
-            $user->save();
-    
-            $userId = $user->id;
-            $userData = User::findOrFail($userId);
-    
-            // Set user id in session when new user is registered
-            Session::put('user_id', $userId);
-    
-            // Prepare data to pass to the view
-            $data = [
-                'userId' => $userId,
-                'userData' => $userData,
-            ];
-    
-            // Return view with new user data.
-            return view('users.home', $data);
-    
-        } catch (\Exception $e) {
-            // If any unexpected exception occurs, redirect to the registration page with a generic error message
-            return redirect()->route('users.create')->with('error', 'An error occurred while registering the user. Please try again later.');
-        }
-    } 
-    
+     // New user registration
+     public function store(Request $request)
+     { 
+         try {
+             // Validate request data
+             $request->validate([
+                 'name' => 'required|string',
+                 'email' => 'required|email|unique:users',
+                 'password' => 'required|min:6',
+                 'amount' => 'numeric',
+                 'is_active' => 'boolean',
+                 'agree_terms' => 'required',
+             ], [
+                 'agree_terms.required' => 'Please agree to the terms.',
+             ]);
+ 
+             // Create user if validation passes
+             $user = new User();
+             $user->name = $request->name;
+             $user->email = $request->email;
+             $user->password = bcrypt($request->password);
+             $user->current_balance = $request->amount ?? 0;
+             $user->is_active = $request->is_active ?? true;
+             $user->save();
+ 
+             $userId = $user->id;
+             $userData = User::where('id', $userId)->first();
+ 
+             $data = [
+                 'userId' => $userId,
+                 'userData' => $userData,
+             ];
+             // Set user id in session when new user is registerted
+             Session::put('user_id', $userId);
+ 
+             // Return view with new user data.
+             return view('users.home', $data);
+ 
+         } catch (ValidationException $e) {
+             return redirect()->route('users.create')->withErrors($e->errors())->withInput();
+         }
+     }     
     /**
      * Home page after user registration
      */
